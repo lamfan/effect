@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                width: 100%;
+                min-height: 100vh;
+                overflow: hidden;
+                align-items: flex-end;
+            }
+            .glass {
+                width: 100%;
+                height: 6rem;
+                background-color: #eee;
+                display: flex;
+                justify-content: center;
+            }
+            .dock {
+                --scale: 1;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .dock li {
+                font-size: calc(5rem * var(--scale));
+                padding: 0 0.5rem;
+                margin-top: -3rem;
+                cursor: default;
+
+                position: relative;
+                transition: 300ms all;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="glass">
+            <ul class="dock">
+                <li>🥰</li>
+                <li>😁</li>
+                <li>😂</li>
+                <li>😜</li>
+                <li>🤩</li>
+                <li>🥳</li>
+                <li>😎</li>
+                <li>😵</li>
+            </ul>
+        </div>
+        <script>
+            document.querySelectorAll('.dock li').forEach((li) => {
+                li.addEventListener('mousemove', (e) => {
+                    let item = e.target;
+                    let itemRect = item.getBoundingClientRect();
+                    let offset = Math.abs(e.clientX - itemRect.left) / itemRect.width;
+
+                    let prev = item.previousElementSibling || null;
+                    let next = item.nextElementSibling || null;
+
+                    let scale = 1;
+
+                    reset();
+
+                    if (prev) {
+                        prev.style.setProperty('--scale', 1 + scale * Math.abs(offset - 1));
+                    }
+
+                    item.style.setProperty('--scale', 1 + scale);
+
+                    if (next) {
+                        next.style.setProperty('--scale', 1 + scale * offset);
+                    }
+                });
+            });
+
+            document.querySelector('.dock').addEventListener('mouseleave', (e) => {
+                reset();
+            });
+
+            function reset() {
+                document.querySelectorAll('.dock li').forEach((li) => {
+                    li.style.setProperty('--scale', 1);
+                });
+            }
+        </script>
+    </body>
+</html>
