@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Captcha</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }
+            #captcha {
+                --width: 400px;
+                --height: 260px;
+                --puzzle-width: 80px;
+                --puzzle-height: 80px;
+                --moved: 0px;
+
+                display: block;
+                width: var(--width);
+                height: var(--height);
+                border-radius: 4px;
+                background-image: url(photo.jpg);
+                background-size: cover;
+                background-position: center;
+                position: relative;
+                box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            #captcha::before,
+            #captcha::after {
+                position: absolute;
+                content: '';
+                display: block;
+                width: inherit;
+                height: inherit;
+                background-image: inherit;
+                background-size: inherit;
+                background-position: inherit;
+
+                /* mask the puzzle */
+                clip-path: inset(
+                    calc((var(--height) - var(--puzzle-height)) / 2) /* 80 */ var(--puzzle-width) /* 80 */ calc((var(--height) - var(--puzzle-height)) / 2)
+                        /* 80 */ calc(var(--width) - var(--puzzle-width) * 2) /* 230 */
+                );
+                -webkit-clip-path: inset(
+                    calc((var(--height) - var(--puzzle-height)) / 2) /* 80 */ var(--puzzle-width) /* 80 */ calc((var(--height) - var(--puzzle-height)) / 2)
+                        /* 80 */ calc(var(--width) - var(--puzzle-width) * 2) /* 230 */
+                );
+            }
+
+            #captcha::after {
+                transform: translateX(clamp(calc(var(--width) * -1), calc((var(--width) * -1) + var(--moved)), calc(var(--puzzle-width))));
+                transition: 0.25s all ease-in-out;
+            }
+
+            #captcha:active::after {
+                transition: none;
+            }
+
+            #captcha::before {
+                background-color: rgba(0, 0, 0, 0.6);
+                background-blend-mode: multiply;
+            }
+
+            #handle {
+                width: calc(var(--width) + var(--puzzle-width) * 2);
+                height: 30px;
+                border-radius: 18px;
+                background-color: #eee;
+                position: absolute;
+                bottom: -50px;
+                left: calc(var(--puzzle-width) * 2 * -1);
+                box-shadow: inset 0px 0px 12px rgba(0, 0, 0, 0.2);
+                border: 3px solid #ccc;
+            }
+            #handle span {
+                display: block;
+                width: var(--puzzle-width);
+                height: inherit;
+                border-radius: inherit;
+                background-color: #fff;
+                box-shadow: inset 0px 0px 6px rgba(0, 0, 0, 0.25), 0px 2px 4x rgba(0, 0, 0, 0.3);
+                position: absolute;
+                cursor: move;
+                transform: translateX(clamp(0px, var(--moved), calc(var(--width) + var(--puzzle-width))));
+                transition: 0.25s all ease-in-out;
+            }
+
+            #captcha:active #handle span {
+                transition: none;
+            }
+
+            #captcha.passed::before,
+            #captcha.passed::after,
+            #captcha.passed #handle {
+                opacity: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="captcha">
+            <div id="handle">
+                <span></span>
+            </div>
+        </div>
+        <script>
+            let isMove = false;
+            const captcha = document.querySelector('#captcha');
+            const handle = document.querySelector('#handle');
+            const btn = document.querySelector('#handle span');
+            btn.addEventListener('mousedown', (e) => {
+                isMove = true;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (isMove) {
+                    const offsetLeft = handle.getBoundingClientRect().left;
+                    const buttonWidth = btn.getBoundingClientRect().width;
+
+                    captcha.style.setProperty('--moved', `${e.clientX - offsetLeft - buttonWidth / 2}px`);
+                }
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (isMove) {
+                    const finalOffset = e.clientX - handle.getBoundingClientRect().left;
+                    if (finalOffset >= 430 && finalOffset <= 450) {
+                        captcha.classList.add('passed');
+                    } else {
+                        captcha.style.setProperty('--moved', '0px');
+                    }
+                    isMove = false;
+                }
+            });
+        </script>
+    </body>
+</html>
